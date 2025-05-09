@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Nova Transferência</title>
+</head>
+<body>
+    <h1>Fazer Transferência</h1>
+
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <label>IBAN do Destinatário:</label>
+        <input type="text" name="destino_iban" maxlength="34" required><br><br>
+
+        <label>Valor (€):</label>
+        <input type="number" name="valor" step="0.01" min="0.01" required><br><br>
+
+        <button type="submit">Transferir</button>
+    </form>
+
+    <a href="{% url 'conta' %}">Voltar</a>
+</body>
+</html>

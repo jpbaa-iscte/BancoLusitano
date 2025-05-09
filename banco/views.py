@@ -1,4 +1,7 @@
+from decimal import Decimal
+
 from django.contrib.auth import authenticate, login, logout
+from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -66,3 +69,50 @@ def registar_view(request):
 def conta_view(request):
     detalhes = get_object_or_404(UtilizadorDetalhes, user=request.user)
     return render(request, 'banco/conta.html',  {'detalhes': detalhes})
+
+def nova_transferencia(request):
+    if request.method == 'POST':
+        destino_iban = request.POST.get('destino_iban')
+        valor_str = request.POST.get('valor')
+
+        try:
+            valor = Decimal(valor_str)
+        except:
+            messages.error(request, "Valor inválido.")
+            return redirect('nova_transferencia')
+
+        try:
+            origem = UtilizadorDetalhes.objects.get(user=request.user)
+        except UtilizadorDetalhes.DoesNotExist:
+            messages.error(request, "Erro ao encontrar seus dados.")
+            return redirect('nova_transferencia')
+
+        try:
+            destino = UtilizadorDetalhes.objects.get(iban=destino_iban)
+        except UtilizadorDetalhes.DoesNotExist:
+            messages.error(request, "IBAN de destino não encontrado.")
+            return redirect('nova_transferencia')
+
+        if origem == destino:
+            messages.error(request, "Não pode transferir para si mesmo.")
+            return redirect('nova_transferencia')
+
+        if valor <= 0:
+            messages.error(request, "O valor deve ser positivo.")
+            return redirect('nova_transferencia')
+
+        if origem.saldo < valor:
+            messages.error(request, "Saldo insuficiente.")
+            return redirect('nova_transferencia')
+
+        try:
+            transferencia = Transferencia(origem=origem, destino=destino, valor=valor)
+            transferencia.save()
+            messages.success(request, "Transferência realizada com sucesso.")
+            return redirect('conta')
+        except ValidationError as e:
+            messages.error(request, str(e))
+        except Exception:
+            messages.error(request, "Erro inesperado ao processar a transferência.")
+
+    return render(request, 'banco/nova_transferencia.html')

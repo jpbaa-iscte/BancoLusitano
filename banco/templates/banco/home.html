@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Banco Lusitano</title>
+    <link rel="stylesheet" href="{% static 'banco/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Banco Lusitano</h1>
+        <p>Bem-vindo ao seu banco online.</p>
+        <div class="button-group">
+            <a href="{% url 'login' %}"><button>Login</button></a>
+            <a href="{% url 'registar' %}"><button>Criar Conta</button></a>
+        </div>
+    </div>
+</body>
+</html>

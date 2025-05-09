@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Criar Conta - Banco Lusitano</title>
+</head>
+<body>
+    <h2>Criar Conta</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Criar Conta</button>
+    </form>
+</body>
+</html>

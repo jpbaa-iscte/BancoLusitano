@@ -1,8 +1,8 @@
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Utilizador
-from .forms import RegistoForm
+from django.contrib.auth.models import User
+from .models import UtilizadorDetalhes
 from django import forms
 from .models import Transferencia
 
@@ -15,15 +15,15 @@ class TransferenciaForm(forms.Form):
 
 def login_view(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
+        username = request.POST.get('username')
         password = request.POST.get('password')
-        user = authenticate(request, email=email, password=password)
+        user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
             return redirect('conta')
         else:
-            messages.error(request, "Email ou palavra-passe inválidos.")
-    return render(request, 'banco/login.html')
+            messages.error(request, "Usuário ou palavra-passe inválidos.")
+    return render(request, 'banco/conta.html')
 
 def logout_view(request):
     logout(request)
@@ -31,16 +31,26 @@ def logout_view(request):
 
 def registar_view(request):
     if request.method == 'POST':
-        form = RegistoForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password'])  # protege a password
-            user.save()
-            login(request, user)
-            return redirect('home')  # redireciona após criar conta
-    else:
-        form = RegistoForm()
-    return render(request, 'banco/registar.html', {'form': form})
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        nome = request.POST.get('nome')
+        nif = request.POST.get('nif')
+        data_nascimento = request.POST.get('data_nascimento')
+        iban = request.POST.get('iban')
+
+        user = User.objects.create_user(username=username, password=password)
+
+        UtilizadorDetalhes.objects.create(
+            user=user,
+            nome=nome,
+            nif=nif,
+            data_nascimento=data_nascimento,
+            iban=iban
+        )
+
+        return redirect('home')  # redireciona após criar conta
+
+    return render(request, 'banco/registar.html')
 
 def conta_view(request):
     # Simulação de autenticação — normalmente usarias request.user

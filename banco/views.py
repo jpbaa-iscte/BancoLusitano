@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.models import User
 from .models import UtilizadorDetalhes
@@ -64,33 +64,5 @@ def registar_view(request):
     return render(request, 'banco/registar.html')
 
 def conta_view(request):
-    if request.method == 'POST':
-        form = TransferenciaForm(request.POST)
-        if form.is_valid():
-            transferencia = form.save(commit=False)
-            transferencia.origem = utilizador
-
-            if transferencia.valor > utilizador.saldo:
-                messages.error(request, 'Saldo insuficiente.')
-            elif transferencia.destino == utilizador:
-                messages.error(request, 'Não pode transferir para si mesmo.')
-            else:
-                # Atualiza saldos
-                utilizador.saldo -= transferencia.valor
-                transferencia.destino.saldo += transferencia.valor
-                utilizador.save()
-                transferencia.destino.save()
-                transferencia.save()
-                messages.success(request, 'Transferência realizada com sucesso.')
-                return redirect('conta')
-    else:
-        form = TransferenciaForm()
-
-    transferencias = Transferencia.objects.filter(origem=utilizador)
-
-    context = {
-        'utilizador': utilizador,
-        'form': form,
-        'transferencias': transferencias
-    }
-    return render(request, 'banco/conta.html', context)
+    detalhes = get_object_or_404(UtilizadorDetalhes, user=request.user)
+    return render(request, 'banco/conta.html',  {'detalhes': detalhes})

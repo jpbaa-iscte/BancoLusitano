@@ -5,10 +5,9 @@
     <title>Conta</title>
 </head>
 <body>
-    <h2>Bem-vindo, {{ utilizador.nome }}</h2>
-    <p><strong>Email:</strong> {{ utilizador.email }}</p>
-    <p><strong>IBAN:</strong> {{ utilizador.iban }}</p>
-    <p><strong>Saldo:</strong> €{{ utilizador.saldo }}</p>
+    <h2>Bem-vindo, {{ utilizador.nome }}</h2>  <!-- Corrigido para utilizar 'utilizador' -->
+    <p><strong>IBAN:</strong> {{ utilizador.iban }}</p>  <!-- Corrigido para utilizar 'utilizador' -->
+    <p><strong>Saldo:</strong> €{{ utilizador.saldo }}</p>  <!-- Corrigido para utilizar 'utilizador' -->
 
     <h3>Fazer Transferência</h3>
     <form method="post">
@@ -18,20 +17,20 @@
     </form>
 
     <h3>Histórico de Transferências</h3>
-<ul>
-  {% for t in transferencias %}
-    <li>
-      {{ t.data|date:"d/m/Y H:i" }} —
-      {% if t.origem == utilizador %}
-        Enviada para {{ t.destino.nome }} ({{ t.destino.iban }}) — €{{ t.valor }}
-      {% else %}
-        Recebida de {{ t.origem.nome }} ({{ t.origem.iban }}) — €{{ t.valor }}
-      {% endif %}
-    </li>
-  {% empty %}
-    <li>Sem transferências realizadas.</li>
-  {% endfor %}
-</ul>
+    <ul>
+        {% for t in transferencias %}
+            <li>
+                {{ t.data|date:"d/m/Y H:i" }} —
+                {% if t.origem == utilizador %}
+                    Enviada para {{ t.destino.nome }} ({{ t.destino.iban }}) — €{{ t.valor }}
+                {% else %}
+                    Recebida de {{ t.origem.nome }} ({{ t.origem.iban }}) — €{{ t.valor }}
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>Sem transferências realizadas.</li>
+        {% endfor %}
+    </ul>
 
     {% for message in messages %}
         <p>{{ message }}</p>
@@ -41,3 +40,4 @@
     <a href="{% url 'logout' %}">Sair</a>
 </body>
 </html>
+

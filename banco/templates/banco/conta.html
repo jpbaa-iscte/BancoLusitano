@@ -3,16 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <title>Detalhes do Utilizador</title>
+    <style>
+        body {
+            background-color: #f1f1f1;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 60%;
+            margin: 100px auto;
+            padding: 40px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            font-size: 18px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .button-link {
+            display: block;
+            width: fit-content;
+            margin: 20px auto 0 auto;
+            text-decoration: none;
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .button-link:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>Bem-vindo, {{ detalhes.nome }}!</h1>
-    <ul>
-        <li><strong>NIF:</strong> {{ detalhes.nif }}</li>
-        <li><strong>Data de Nascimento:</strong> {{ detalhes.data_nascimento }}</li>
-        <li><strong>Saldo:</strong> € {{ detalhes.saldo }}</li>
-        <li><strong>IBAN:</strong> {{ detalhes.iban }}</li>
-    </ul>
+    <div class="container">
+        <h1>Bem-vindo, {{ detalhes.nome }}!</h1>
+        <ul>
+            <li><strong>NIF:</strong> {{ detalhes.nif }}</li>
+            <li><strong>Data de Nascimento:</strong> {{ detalhes.data_nascimento }}</li>
+            <li><strong>Saldo:</strong> € {{ detalhes.saldo }}</li>
+            <li><strong>IBAN:</strong> {{ detalhes.iban }}</li>
+        </ul>
 
-    <a href="{% url 'logout' %}">Sair</a>
+        <a class="button-link" href="{% url 'nova_transferencia' %}">Fazer transferência</a>
+        <a class="button-link" href="{% url 'logout' %}">Sair</a>
+    </div>
 </body>
 </html>

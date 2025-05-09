@@ -3,29 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <title>Nova Transferência</title>
+    <style>
+        body {
+            background-color: #f1f1f1;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 60%;
+            margin: 100px auto;
+            padding: 40px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        li {
+            color: red;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Fazer Transferência</h1>
+    <div class="container">
+        <h1>Fazer Transferência</h1>
 
-    {% if messages %}
-        <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
 
-    <form method="post">
-        {% csrf_token %}
-        <label>IBAN do Destinatário:</label>
-        <input type="text" name="destino_iban" maxlength="34" required><br><br>
+        <form method="post">
+            {% csrf_token %}
+            <label for="destino_iban">IBAN do Destinatário:</label>
+            <input type="text" id="destino_iban" name="destino_iban" maxlength="34" required>
 
-        <label>Valor (€):</label>
-        <input type="number" name="valor" step="0.01" min="0.01" required><br><br>
+            <label for="valor">Valor (€):</label>
+            <input type="number" id="valor" name="valor" step="0.01" min="0.01" required>
 
-        <button type="submit">Transferir</button>
-    </form>
+            <button type="submit">Transferir</button>
+        </form>
 
-    <a href="{% url 'conta' %}">Voltar</a>
+        <a href="{% url 'conta' %}">Voltar</a>
+    </div>
 </body>
 </html>

@@ -14,17 +14,22 @@ class TransferenciaForm(forms.Form):
     iban_destino = forms.CharField(max_length=25)
     valor = forms.DecimalField(max_digits=10, decimal_places=2)
 
+
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+
+        # Autenticar o usuário
         user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('conta')
+
+        if user is not None:  # Usuário autenticado com sucesso
+            login(request, user)  # Faz login do usuário
+            return redirect('conta')  # Redireciona para a página da conta
         else:
-            messages.error(request, "Usuário ou palavra-passe inválidos.")
-    return render(request, 'banco/conta.html')
+            error_message = "Nome de usuário ou senha incorretos."
+            return render(request, 'banco/login.html', {'error_message': error_message})
+    return render(request, 'banco/login.html')  # Exibe a tela de login
 
 def logout_view(request):
     logout(request)
@@ -59,13 +64,6 @@ def registar_view(request):
     return render(request, 'banco/registar.html')
 
 def conta_view(request):
-    # Simulação de autenticação — normalmente usarias request.user
-    utilizador_id = request.session.get('utilizador_id')  # ou como estás a armazenar o login
-    if not utilizador_id:
-        return redirect('login')  # Redireciona para login se não estiver autenticado
-
-    utilizador = UtilizadorDetalhes.objects.get(id=utilizador_id)
-
     if request.method == 'POST':
         form = TransferenciaForm(request.POST)
         if form.is_valid():

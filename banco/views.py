@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from .models import UtilizadorDetalhes
 from django import forms
 from .models import Transferencia
+from django.utils.crypto import get_random_string
 
 def home(request):
     return render(request, 'banco/home.html')
@@ -29,6 +30,12 @@ def logout_view(request):
     logout(request)
     return redirect('home')
 
+def generate_unique_iban():
+    while True:
+        iban = 'PT50' + get_random_string(25, allowed_chars='0123456789')
+        if not UtilizadorDetalhes.objects.filter(iban=iban).exists():
+            return iban
+
 def registar_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -36,7 +43,6 @@ def registar_view(request):
         nome = request.POST.get('nome')
         nif = request.POST.get('nif')
         data_nascimento = request.POST.get('data_nascimento')
-        iban = request.POST.get('iban')
 
         user = User.objects.create_user(username=username, password=password)
 
@@ -45,10 +51,10 @@ def registar_view(request):
             nome=nome,
             nif=nif,
             data_nascimento=data_nascimento,
-            iban=iban
+            iban=generate_unique_iban(),
         )
 
-        return redirect('home')  # redireciona após criar conta
+        return redirect('home')
 
     return render(request, 'banco/registar.html')
 
@@ -58,7 +64,7 @@ def conta_view(request):
     if not utilizador_id:
         return redirect('login')  # Redireciona para login se não estiver autenticado
 
-    utilizador = Utilizador.objects.get(id=utilizador_id)
+    utilizador = UtilizadorDetalhes.objects.get(id=utilizador_id)
 
     if request.method == 'POST':
         form = TransferenciaForm(request.POST)

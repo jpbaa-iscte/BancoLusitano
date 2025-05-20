@@ -5,9 +5,9 @@ from django.utils import timezone
 
 class UtilizadorDetalhes(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    nome = models.CharField(max_length=100)
-    nif = models.BigIntegerField()  # or CharField(max_length=12) if needed
-    data_nascimento = models.DateField()
+    nome = models.CharField(max_length=128, blank=False, null=False)
+    nif = models.CharField(max_length=128, unique=True, blank=False, null=False)
+    data_nascimento = models.CharField(max_length=128, blank=False, null=False)
     saldo = models.DecimalField(default=0, max_digits=10, decimal_places=2)
     iban = models.CharField(max_length=34, unique=True)
 

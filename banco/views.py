@@ -1,13 +1,14 @@
+from datetime import datetime
 from decimal import Decimal
-
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .models import UtilizadorDetalhes
 from django import forms
-from .models import Transferencia
+
+from .models import UtilizadorDetalhes, Transferencia
+from utils.crypto import encrypt, decrypt
 from django.utils.crypto import get_random_string
 
 def home(request):
@@ -17,22 +18,19 @@ class TransferenciaForm(forms.Form):
     iban_destino = forms.CharField(max_length=25)
     valor = forms.DecimalField(max_digits=10, decimal_places=2)
 
-
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-
-        # Autenticar o usuário
         user = authenticate(request, username=username, password=password)
-
-        if user is not None:  # Usuário autenticado com sucesso
-            login(request, user)  # Faz login do usuário
-            return redirect('conta')  # Redireciona para a página da conta
+        if user is not None:
+            login(request, user)
+            return redirect('conta')
         else:
-            error_message = "Nome de usuário ou senha incorretos."
-            return render(request, 'banco/login.html', {'error_message': error_message})
-    return render(request, 'banco/login.html')  # Exibe a tela de login
+            return render(request, 'banco/login.html', {
+                'error_message': "Nome de usuário ou senha incorretos."
+            })
+    return render(request, 'banco/login.html')
 
 def logout_view(request):
     logout(request)
@@ -48,33 +46,48 @@ def registar_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        nome = request.POST.get('nome')
-        nif = request.POST.get('nif')
-        data_nascimento = request.POST.get('data_nascimento')
+        raw_nome = request.POST.get('nome')
+        raw_nif = request.POST.get('nif')
+        raw_data = request.POST.get('data_nascimento')
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Esse nome de usuário já está em uso.")
+            return redirect('registar')
+
+        nome_enc = encrypt(raw_nome)
+        nif_enc = encrypt(raw_nif)
 
         user = User.objects.create_user(username=username, password=password)
-
         UtilizadorDetalhes.objects.create(
             user=user,
-            nome=nome,
-            nif=nif,
-            data_nascimento=data_nascimento,
+            nome=nome_enc,
+            nif=nif_enc,
+            data_nascimento=raw_data,
             iban=generate_unique_iban(),
         )
-
+        messages.success(request, "Registo efetuado com sucesso!")
         return redirect('home')
 
     return render(request, 'banco/registar.html')
 
 def conta_view(request):
     detalhes = get_object_or_404(UtilizadorDetalhes, user=request.user)
-    return render(request, 'banco/conta.html',  {'detalhes': detalhes})
+
+    nome_plain = decrypt(detalhes.nome)
+    nif_plain = decrypt(detalhes.nif)
+
+    detalhes.nome = nome_plain
+    detalhes.nif = nif_plain
+    detalhes.data_nascimento = detalhes.data_nascimento
+
+    return render(request, 'banco/conta.html', {
+        'detalhes': detalhes
+    })
 
 def nova_transferencia(request):
     if request.method == 'POST':
         destino_iban = request.POST.get('destino_iban')
         valor_str = request.POST.get('valor')
-
         try:
             valor = Decimal(valor_str)
         except:
